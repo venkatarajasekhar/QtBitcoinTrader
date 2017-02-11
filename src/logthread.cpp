@@ -1,6 +1,6 @@
 //  This file is part of Qt Bitcoin Trader
 //      https://github.com/JulyIGHOR/QtBitcoinTrader
-//  Copyright (C) 2013-2017 July IGHOR <julyighor@gmail.com>
+//  Copyright (C) 2013 to 2017 July IGHOR <julyighor@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ void LogThread::writeLog(QByteArray data, int dbLvl)
 
 	if(debugLevel==2&&dbLvl!=2)return;//0: Disabled; 1: Debug; 2: Log
 
-	emit writeLogSignal(data,dbLvl);
+	writeLogSignal(data,dbLvl);
 }
 
 void LogThread::writeLogSlot(QByteArray data, int dbLvl)
@@ -77,5 +77,5 @@ void LogThread::writeLogSlot(QByteArray data, int dbLvl)
 		}
 	}
 	else
-	emit sendLogSignal(data);
+	sendLogSignal(data);
 }
