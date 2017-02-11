@@ -1,6 +1,6 @@
 //  This file is part of Qt Bitcoin Trader
 //      https://github.com/JulyIGHOR/QtBitcoinTrader
-//  Copyright (C) 2013-2017 July IGHOR <julyighor@gmail.com>
+//  Copyright (C) 2013 to 2017 July IGHOR <julyighor@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -72,10 +72,14 @@ TranslationDialog::TranslationDialog(QWidget *parent)
 
 	int currentRow=0;
 	QWidget *lastWidget=authorAbout;
+		if(!lastWidget)
+			return NULL;
 	for(int n=0;n<lineEdits.count();n++)
 		if(lineEdits[n]->isChanged()==false)
 		{
 			TranslationLine *nextWidget=lineEdits[n];
+			if(!nextWidget)
+				return;
 			gridLayout->addWidget(nextWidget, currentRow++, 0);
 			setTabOrder(lastWidget,nextWidget);
 			lastWidget=nextWidget;
@@ -85,14 +89,16 @@ TranslationDialog::TranslationDialog(QWidget *parent)
 		if(lineEdits[n]->isChanged()==true)
 		{
 			TranslationLine *nextWidget=lineEdits[n];
+			if(!nextWidget)
+				return;
 			gridLayout->addWidget(nextWidget, currentRow++, 0);
 			setTabOrder(lastWidget,nextWidget);
 			lastWidget=nextWidget;
 		}
 		setTabOrder(lastWidget,ui.searchLineEdit);
 
-        resize(800,640);
-        fixLayout();
+        QWidget::resize(800,640);
+        QWidget::fixLayout();
 	if(baseValues.mainWindow_)mainWindow.addPopupDialog(1);
 
     QTimer::singleShot(100,this,SLOT(fixLayout()));
@@ -112,8 +118,10 @@ void TranslationDialog::fixLayout()
 
 void TranslationDialog::resizeEvent(QResizeEvent *event)
 {
-    event->accept();
-	fixLayout();
+        if(!event)
+		return;
+	event->accept();
+	QWidget::fixLayout();
 }
 
 void TranslationDialog::deleteTranslationButton()
@@ -127,25 +135,35 @@ void TranslationDialog::deleteTranslationButton()
 	msgBox.setButtonText(QMessageBox::Yes,julyTr("YES","Yes"));
 	msgBox.setButtonText(QMessageBox::No,julyTr("NO","No"));
 	if(msgBox.exec()!=QMessageBox::Yes)return;
-	if(QFile::exists(julyTranslator.lastFile()))QFile::remove(julyTranslator.lastFile());
+	if(QFile::exists(julyTranslator.lastFile()))
+		QFile::remove(julyTranslator.lastFile());
 	ui.deleteTranslationButton->setEnabled(QFile::exists(julyTranslator.lastFile()));
     mainWindow.reloadLanguage();
-	close();
+	QFile::close();
 }
 
 void TranslationDialog::fillLayoutByMap(QMap<QString,QString>* cMap, QString subName, QMap<QString,QString>* dMap)
 {
-	QStringList currentIdList=dMap->keys();
-
-	for(int n=0;n<currentIdList.count();n++)
+	QStringList *currentIdList=dMap->keys();
+        if(!currentIdList)
+		return;
+	for(int n=0;n<currentIdList->count();n++)
 	{
-		if(currentIdList.at(n).startsWith("LANGUAGE_"))continue;
+		if(currentIdList->at(n).startsWith("LANGUAGE_"))
+			continue;
+		try{
 		TranslationLine *newEdit=new TranslationLine;
-		QString defText=dMap->value(currentIdList.at(n),"");
+		}catch(std::bad_alloc&) {
+		std::cout << "Error :Memory Allocation .\n";
+		}
+			
+		if(!newEdit)
+			return;
+		QString defText=dMap->value(currentIdList->at(n),"");
 		newEdit->setDefaultText(defText);
 		newEdit->setToolTip(defText.replace("<br>","\n"));
-		newEdit->setWindowTitle(subName+currentIdList.at(n));
-		newEdit->setItemText(cMap->value(currentIdList.at(n),""));
+		newEdit->setWindowTitle(subName+currentIdList->at(n));
+		newEdit->setItemText(cMap->value(currentIdList->at(n),""));
 		connect(newEdit,SIGNAL(lineTextChanged()),this,SLOT(lineTextChanged()));
 		lineEdits<<newEdit;
 	}
@@ -153,7 +171,7 @@ void TranslationDialog::fillLayoutByMap(QMap<QString,QString>* cMap, QString sub
 
 void TranslationDialog::lineTextChanged()
 {
-	fixLayout();
+	QWidget::fixLayout();
 	ui.buttonApply->setEnabled(true);
 }
 
